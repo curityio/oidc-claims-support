@@ -1,5 +1,5 @@
-Oidc Claims Support Authenticator Plug-in
-===================================
+OIDC Claims Support Authenticator Plug-in
+===========================================
 
 .. image:: https://travis-ci.org/curityio/oidc-claims-support-authenticator.svg?branch=dev
      :target: https://travis-ci.org/curityio/oidc-claims-support-authenticator
