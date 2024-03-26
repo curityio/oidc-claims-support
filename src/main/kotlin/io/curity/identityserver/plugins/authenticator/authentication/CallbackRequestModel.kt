@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Curity AB
+ * Copyright 2024 Curity AB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,6 @@ class CallbackRequestModel(request: Request)
     companion object
     {
         private val invalidParameter = { s: String -> RuntimeException(String.format(
-            "Expected only one query string parameter named %s, but found multiple.", s)) }
+                "Expected only one query string parameter named %s, but found multiple.", s)) }
     }
 }
