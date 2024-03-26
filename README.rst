@@ -1,10 +1,10 @@
-ShortKeyOidc Authenticator Plug-in
+Oidc Claims Support Authenticator Plug-in
 ===================================
 
-.. image:: https://travis-ci.org/curityio/short-key-oidc-authenticator.svg?branch=dev
-     :target: https://travis-ci.org/curityio/short-key-oidc-authenticator
+.. image:: https://travis-ci.org/curityio/oidc-claims-support-authenticator.svg?branch=dev
+     :target: https://travis-ci.org/curityio/oidc-claims-support-authenticator
 
-This project provides an Authenticator plug-in for the Curity Identity Server. The plugin is a basic authenticator using an OIDC provider for authentication. This plugin is specifically made to work with OIDC providers that sign their ID token with a key that is too short to be accepted by the built-in OIDC authenticator, but may also serve as an example of how such an authenticator can be implemented.
+This project provides an Authenticator plug-in for the Curity Identity Server. The plugin is a basic authenticator using an OIDC provider for authentication. This plugin support the request of claims using claims request parameter.
 
 .. note::
     This authenticator does not implement its own client authentication, meaning that the configured HTTP client must have the Basic authentication scheme enabled, and the provider must support Basic authentication for the token request.
@@ -29,7 +29,7 @@ The source is very easy to compile. To do so from a shell, issue this command: `
 Installation
 ~~~~~~~~~~~~
 
-To install this plug-in, compile it from source (as described above). The resulting JAR file as well as the dependencies needs to placed in the directory ``${IDSVR_HOME}/usr/share/plugins/short-key-oidc``. (The name of the last directory, ``short-key-oidc``, which is the plug-in group, is arbitrary and can be anything.) After doing so, the plug-in will become available as soon as the node is restarted.
+To install this plug-in, compile it from source (as described above). The resulting JAR file as well as the dependencies needs to placed in the directory ``${IDSVR_HOME}/usr/share/plugins/oidc-claims-support``. (The name of the last directory, ``oidc-claims-support`, which is the plug-in group, is arbitrary and can be anything.) After doing so, the plug-in will become available as soon as the node is restarted.
 
 .. note::
 
