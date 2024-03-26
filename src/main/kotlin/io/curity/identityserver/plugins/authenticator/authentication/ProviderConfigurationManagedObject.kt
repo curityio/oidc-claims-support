@@ -87,7 +87,6 @@ class ProviderConfigurationManagedObject(private val _config: OidcClaimsSupportA
             .setRequireExpirationTime()
             .setSkipDefaultAudienceValidation()
             .setExpectedIssuer(_config.getIssuer())
-            .setRelaxVerificationKeyValidation()
             .setVerificationKeyResolver(HttpsJwksVerificationKeyResolver(httpsJwks))
             .build()
     }
