@@ -25,6 +25,7 @@ import se.curity.identityserver.sdk.service.HttpClient
 import se.curity.identityserver.sdk.service.Json
 import se.curity.identityserver.sdk.service.SessionManager
 import se.curity.identityserver.sdk.service.authentication.AuthenticatorInformationProvider
+import java.util.Optional
 
 interface OidcClaimsSupportAuthenticatorPluginConfig : Configuration {
     @Description("Client id")
@@ -39,6 +40,9 @@ interface OidcClaimsSupportAuthenticatorPluginConfig : Configuration {
     @Description("The HTTP client with any proxy and TLS settings that will be used to connect to the provider")
     @DefaultService
     fun getHttpClient(): HttpClient
+
+    @Description("The claims that are returned at the userinfo endpoint and in the ID token")
+    fun getClaims(): Optional<String>
 
     fun getSessionManager(): SessionManager
 

@@ -22,7 +22,7 @@ class CallbackRequestModel(request: Request)
 {
     val error: String? = request.getQueryParameterValueOrError("error", invalidParameter)
     val errorDescription: String? = request.getQueryParameterValueOrError("error_description", invalidParameter)
-    val code: String = request.getQueryParameterValueOrError("code", invalidParameter)
+    val code: String? = request.getQueryParameterValueOrError("code", invalidParameter)
     val state: String = request.getQueryParameterValueOrError("state", invalidParameter)
 
     fun isError() = error != null|| errorDescription != null
@@ -30,6 +30,6 @@ class CallbackRequestModel(request: Request)
     companion object
     {
         private val invalidParameter = { s: String -> RuntimeException(String.format(
-                "Expected only one query string parameter named %s, but found multiple.", s)) }
+            "Expected only one query string parameter named %s, but found multiple.", s)) }
     }
 }
