@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Curity AB
+ * Copyright 2024 Curity AB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,7 +50,7 @@ class OidcClaimSupportAuthenticatorRequestHandler(private val _config: OidcClaim
             }
         }
 
-        _config.getSessionManager().put(Attribute.of("state", state))
+        val claims = _config.getClaims().orElse(null)
 
         val queryStringArguments = linkedMapOf<String, Collection<String>>(
             "client_id" to setOf(_config.getClientId()),
@@ -58,7 +58,11 @@ class OidcClaimSupportAuthenticatorRequestHandler(private val _config: OidcClaim
             "state" to setOf(state),
             "response_type" to setOf("code"),
             "scope" to setOf(scope.joinToString(" "))
-        )
+        ).apply {
+            claims?.let { put("claims", setOf(it))}
+        }
+
+        _config.getSessionManager().put(Attribute.of("state", state))
 
         _logger.debug("Redirecting to {} with query string arguments {}", _providerConfig.authorizeEndpoint,
             queryStringArguments

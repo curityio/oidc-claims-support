@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Curity AB
+ * Copyright 2024 Curity AB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -101,7 +101,7 @@ class CallbackRequestHandler(
         val tokenResponse = _config.getHttpClient()
             .request(_providerConfiguration.tokenEndpoint)
             .contentType(ContentType.X_WWW_FORM_URLENCODED.contentType)
-            .body(HttpRequest.createFormUrlEncodedBodyProcessor(createPostData(requestModel.code, redirectUri)))
+            .body(HttpRequest.createFormUrlEncodedBodyProcessor(requestModel.code?.let { createPostData(it, redirectUri) }))
             .post()
             .response()
 

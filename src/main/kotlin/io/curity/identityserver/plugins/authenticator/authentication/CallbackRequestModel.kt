@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Curity AB
+ * Copyright 2024 Curity AB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ class CallbackRequestModel(request: Request)
 {
     val error: String? = request.getQueryParameterValueOrError("error", invalidParameter)
     val errorDescription: String? = request.getQueryParameterValueOrError("error_description", invalidParameter)
-    val code: String = request.getQueryParameterValueOrError("code", invalidParameter)
+    val code: String? = request.getQueryParameterValueOrError("code", invalidParameter)
     val state: String = request.getQueryParameterValueOrError("state", invalidParameter)
 
     fun isError() = error != null|| errorDescription != null

@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Curity AB
+ * Copyright 2024 Curity AB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -87,7 +87,6 @@ class ProviderConfigurationManagedObject(private val _config: OidcClaimsSupportA
             .setRequireExpirationTime()
             .setSkipDefaultAudienceValidation()
             .setExpectedIssuer(_config.getIssuer())
-            .setRelaxVerificationKeyValidation()
             .setVerificationKeyResolver(HttpsJwksVerificationKeyResolver(httpsJwks))
             .build()
     }
