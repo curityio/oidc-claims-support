@@ -18,6 +18,7 @@ package io.curity.identityserver.plugins.authenticator.authentication
 
 import io.curity.identityserver.plugins.authenticator.authentication.RedirectUriUtil.Companion.createRedirectUri
 import io.curity.identityserver.plugins.authenticator.config.OidcClaimsSupportAuthenticatorPluginConfig
+import org.jose4j.jwt.JwtClaims
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.slf4j.Marker
@@ -43,6 +44,7 @@ class CallbackRequestHandler(
     private val _exceptionFactory: ExceptionFactory = _config.getExceptionFactory()
     private val _authenticatorInformationProvider: AuthenticatorInformationProvider =
         _config.getAuthenticatorInformationProvider()
+    private val _fetchUserInfo = _config.getFetchUserInfo()
 
     companion object {
         private val _logger: Logger = LoggerFactory.getLogger(CallbackRequestHandler::class.java)
@@ -73,12 +75,10 @@ class CallbackRequestHandler(
         val tokenResponseData = redeemCodeForTokens(requestModel)
         _logger.debug(MASK_MARKER, "ID token: " + tokenResponseData["id_token"])
 
-        val idTokenClaims =
-            _providerConfiguration.jwtConsumer.processToClaims(tokenResponseData["id_token"] as String)
+        val idTokenClaims = _providerConfiguration.jwtConsumer.processToClaims(tokenResponseData["id_token"] as String)
+        val userInfoClaims = if (_fetchUserInfo) fetchUserInfoClaims(tokenResponseData["access_token"] as String) else null
 
-        val subjectAttributes =
-            idTokenClaims.claimsMap.filter { entry -> !FILTER_CLAIMS.contains(entry.key) }.toMutableMap()
-        subjectAttributes["subject"] = idTokenClaims.subject
+        val subjectAttributes = prepareSubjectAttributes(idTokenClaims, userInfoClaims)
 
         val attributes = AuthenticationAttributes.of(
             SubjectAttributes.of(subjectAttributes),
@@ -94,6 +94,26 @@ class CallbackRequestHandler(
 
         return Optional.ofNullable(AuthenticationResult(attributes))
     }
+
+    private fun fetchUserInfoClaims(providerAccessToken:String): JwtClaims{
+        val userInfoResponse = _config.getHttpClient()
+            .request(_providerConfiguration.userInfoEndpoint)
+            .header("Authorization", "Bearer $providerAccessToken")
+            .post()
+            .response()
+
+        return JwtClaims.parse(userInfoResponse.body(HttpResponse.asString()))
+    }
+
+    private fun prepareSubjectAttributes(idTokenClaims:JwtClaims, userInfoClaims:JwtClaims?): SubjectAttributes {
+        val subjectAttributesFromIdToken = idTokenClaims.claimsMap.filter { it.key !in FILTER_CLAIMS }
+            .toMutableMap().apply { this["subject"] = idTokenClaims.subject }
+        val subjectAttributesFromUserInfo = userInfoClaims?.claimsMap?.filter { it.key !in FILTER_CLAIMS }
+            ?: emptyMap()
+
+        return SubjectAttributes.of(subjectAttributesFromIdToken.apply { putAll(subjectAttributesFromUserInfo) })
+    }
+
 
     private fun redeemCodeForTokens(requestModel: CallbackRequestModel): Map<String, Any> {
         val redirectUri = createRedirectUri(_authenticatorInformationProvider, _exceptionFactory)
