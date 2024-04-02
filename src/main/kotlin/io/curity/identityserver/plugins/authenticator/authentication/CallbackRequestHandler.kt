@@ -108,8 +108,11 @@ class CallbackRequestHandler(
     private fun prepareSubjectAttributes(idTokenClaims:JwtClaims, userInfoClaims:JwtClaims?): SubjectAttributes {
         val subjectAttributesFromIdToken = idTokenClaims.claimsMap.filter { it.key !in FILTER_CLAIMS }
             .toMutableMap().apply { this["subject"] = idTokenClaims.subject }
+        _logger.debug(MASK_MARKER, "ID Token Claims to be added to the Subject attributes = {} ",subjectAttributesFromIdToken)
+
         val subjectAttributesFromUserInfo = userInfoClaims?.claimsMap?.filter { it.key !in FILTER_CLAIMS }
             ?: emptyMap()
+        _logger.debug(MASK_MARKER, "UserInfo Claims to be added to the Subject attributes = {} ",subjectAttributesFromUserInfo)
 
         return SubjectAttributes.of(subjectAttributesFromIdToken.apply { putAll(subjectAttributesFromUserInfo) })
     }
