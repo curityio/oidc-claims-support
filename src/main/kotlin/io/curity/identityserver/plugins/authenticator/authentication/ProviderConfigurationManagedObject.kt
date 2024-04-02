@@ -73,7 +73,7 @@ class ProviderConfigurationManagedObject(private val _config: OidcClaimsSupportA
         val jwksUri = metadata?.jwksUri ?: throw metadataNotFetchedException()
         _logger.info("jwks_uri: $jwksUri")
 
-        val httpsJwks = HttpsJwks(jwksUri)
+        val httpsJwks = HttpsJwks(jwksUri.toString())
         httpsJwks.setSimpleHttpGet(SimpleGet { location: String ->
             try {
                 val response = _httpClient.request(URI(location))
@@ -130,15 +130,13 @@ class ProviderConfigurationManagedObject(private val _config: OidcClaimsSupportA
         val tokenEndpoint: URI
         val authorizeEndpoint: URI
         val userInfoEndpoint: URI
-        val jwksUri: String
+        val jwksUri: URI
 
         init {
             _logger.info("Discovering metadata")
             val providerConfiguration = fetchProviderConfiguration(config, httpClient)
 
-            jwksUri = providerConfiguration["jwks_uri"] as? String
-                ?: throw _exceptionFactory.configurationException("Could not get jwks_uri from provider metadata")
-
+            jwksUri = parseEndpoint(providerConfiguration, "jwks_uri")
             authorizeEndpoint = parseEndpoint(providerConfiguration, "authorization_endpoint")
             tokenEndpoint = parseEndpoint(providerConfiguration, "token_endpoint")
             userInfoEndpoint = parseEndpoint(providerConfiguration, "userinfo_endpoint")
