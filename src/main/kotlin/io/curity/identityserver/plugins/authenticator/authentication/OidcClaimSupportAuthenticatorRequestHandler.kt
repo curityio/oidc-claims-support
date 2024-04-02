@@ -50,8 +50,8 @@ class OidcClaimSupportAuthenticatorRequestHandler(private val _config: OidcClaim
             }
         }
 
+        val acrValues = _config.getAuthenticationContextClassReference().orElse(null)
         val claims = _config.getClaims().orElse(null)
-
         val queryStringArguments = linkedMapOf<String, Collection<String>>(
             "client_id" to setOf(_config.getClientId()),
             "redirect_uri" to setOf(redirectUri),
@@ -60,6 +60,7 @@ class OidcClaimSupportAuthenticatorRequestHandler(private val _config: OidcClaim
             "scope" to setOf(scope.joinToString(" "))
         ).apply {
             claims?.let { put("claims", setOf(it))}
+            acrValues?.let { put("acr_values", setOf(it))}
         }
 
         _config.getSessionManager().put(Attribute.of("state", state))

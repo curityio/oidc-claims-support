@@ -45,6 +45,8 @@ class ProviderConfigurationManagedObject(private val _config: OidcClaimsSupportA
 
     lateinit var authorizeEndpoint: URI
 
+    lateinit var userInfoEndpoint: URI
+
     private lateinit var _httpClient: HttpClient
 
     val jwtConsumer: JwtConsumer by lazy { createJwtConsumer() }
@@ -63,6 +65,7 @@ class ProviderConfigurationManagedObject(private val _config: OidcClaimsSupportA
         metadata = DiscoveredProviderMetadata(_config, httpClient)
         authorizeEndpoint = metadata?.authorizeEndpoint ?: throw metadataNotFetchedException()
         tokenEndpoint = metadata?.tokenEndpoint ?: throw metadataNotFetchedException()
+        userInfoEndpoint = metadata?.userInfoEndpoint ?: throw metadataNotFetchedException()
     }
 
 
@@ -70,7 +73,7 @@ class ProviderConfigurationManagedObject(private val _config: OidcClaimsSupportA
         val jwksUri = metadata?.jwksUri ?: throw metadataNotFetchedException()
         _logger.info("jwks_uri: $jwksUri")
 
-        val httpsJwks = HttpsJwks(jwksUri)
+        val httpsJwks = HttpsJwks(jwksUri.toString())
         httpsJwks.setSimpleHttpGet(SimpleGet { location: String ->
             try {
                 val response = _httpClient.request(URI(location))
@@ -126,27 +129,34 @@ class ProviderConfigurationManagedObject(private val _config: OidcClaimsSupportA
 
         val tokenEndpoint: URI
         val authorizeEndpoint: URI
-        val jwksUri: String
+        val userInfoEndpoint: URI
+        val jwksUri: URI
 
         init {
             _logger.info("Discovering metadata")
+            val providerConfiguration = fetchProviderConfiguration(config, httpClient)
+
+            jwksUri = parseEndpoint(providerConfiguration, "jwks_uri")
+            authorizeEndpoint = parseEndpoint(providerConfiguration, "authorization_endpoint")
+            tokenEndpoint = parseEndpoint(providerConfiguration, "token_endpoint")
+            userInfoEndpoint = parseEndpoint(providerConfiguration, "userinfo_endpoint")
+        }
+
+        private fun fetchProviderConfiguration(config: OidcClaimsSupportAuthenticatorPluginConfig, httpClient: HttpClient): Map<String,Any> {
             val discoveryResponse = httpClient
                 .request(URI(config.getIssuer() + "/.well-known/openid-configuration"))
                 .header("Accept", ContentType.JSON.contentType)
                 .get().response()
-            val providerConfiguration = discoveryResponse.body(HttpResponse.asJsonObject(config.getJson()))
 
-            jwksUri = providerConfiguration["jwks_uri"] as String? ?: throw _exceptionFactory
-                .configurationException("Could not get jwks_uri from provider metadata")
-
-            val authorization = providerConfiguration["authorization_endpoint"] as String? ?: throw _exceptionFactory
-                .configurationException("Could not get authorization_endpoint from provider metadata")
-            authorizeEndpoint = URI(authorization)
-
-            val token = providerConfiguration["token_endpoint"] as String? ?: throw _exceptionFactory
-                .configurationException("Could not get token_endpoint from provider metadata")
-            tokenEndpoint = URI(token)
+            return discoveryResponse.body(HttpResponse.asJsonObject(config.getJson()))
         }
 
+        private fun parseEndpoint(providerConfiguration: Map<String,Any>, key: String): URI {
+            val endpoint = providerConfiguration[key] as? String
+                ?: throw _exceptionFactory.configurationException("Could not get $key from provider metadata")
+
+            return URI(endpoint)
+        }
     }
+
 }

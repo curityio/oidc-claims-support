@@ -18,6 +18,7 @@ package io.curity.identityserver.plugins.authenticator.config
 
 
 import se.curity.identityserver.sdk.config.Configuration
+import se.curity.identityserver.sdk.config.annotation.DefaultBoolean
 import se.curity.identityserver.sdk.config.annotation.DefaultService
 import se.curity.identityserver.sdk.config.annotation.Description
 import se.curity.identityserver.sdk.service.ExceptionFactory
@@ -37,12 +38,19 @@ interface OidcClaimsSupportAuthenticatorPluginConfig : Configuration {
     @Description("Scopes to request from provider")
     fun getScope(): List<String>
 
+    @Description("The Authentication Context Class Reference (ACR) or authentication method that should be sent in the request to the OpenID Server")
+    fun getAuthenticationContextClassReference(): Optional<String>
+
     @Description("The HTTP client with any proxy and TLS settings that will be used to connect to the provider")
     @DefaultService
     fun getHttpClient(): HttpClient
 
     @Description("The claims that are returned at the userinfo endpoint and in the ID token")
     fun getClaims(): Optional<String>
+
+    @Description("Fetch claims from the userinfo endpoint")
+    @DefaultBoolean(false)
+    fun getFetchUserInfo():Boolean
 
     fun getSessionManager(): SessionManager
 
