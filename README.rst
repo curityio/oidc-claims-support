@@ -18,13 +18,12 @@ System Requirements
 Requirements for Building from Source
 """""""""""""""""""""""""""""""""""""
 
-* Maven 3
 * Java JDK v. 8
 
 Compiling the Plug-in from Source
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The source is very easy to compile. To do so from a shell, issue this command: ``mvn package``. The result will be the plugin jar in the `target` folder, as well as the necessary dependencies in `target/dependency`
+The source is very easy to compile. To do so from a shell, issue this command: ``./gradlew build``. The result will be the plugin jar in the `build/libs` folder. Next gather the jar ``oidc-claims-support-1.0.0-SNAPSHOT.jar``
 
 Installation
 ~~~~~~~~~~~~
